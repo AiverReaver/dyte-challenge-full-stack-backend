@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import * as bcrypt from 'bcrypt';
 import * as JsonWebToken from 'jsonwebtoken'
 import { User } from "../entity/User";
-import { AccessToken, userReqBody } from "../interfaces/AuthResponse";
+import { AccessToken, userReqBody } from "../interfaces/AuthInterface";
 
 export class AuthController {
 

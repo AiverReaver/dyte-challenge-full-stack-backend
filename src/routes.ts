@@ -1,7 +1,7 @@
 import { AuthController } from "./controller/AuthController";
 import { UrlController } from "./controller/UrlController";
-import { UserController } from "./controller/UserController";
 import { Route } from "./interfaces/RouteInterface";
+import { verifyToken } from "./middleware/AuthMiddleware";
 
 export const Routes: Route[] = [{
     method: "post",
@@ -17,7 +17,8 @@ export const Routes: Route[] = [{
     method: "post",
     route: "/url/shorten",
     controller: UrlController,
-    action: "shorten"
+    action: "shorten",
+    middlewareArr: [verifyToken]
 }, {
     method: "get",
     route: "/:shortId",
