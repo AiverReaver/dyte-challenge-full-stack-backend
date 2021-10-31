@@ -1,4 +1,5 @@
 import { AuthController } from "./controller/AuthController";
+import { UrlController } from "./controller/UrlController";
 import { UserController } from "./controller/UserController";
 import { Route } from "./interfaces/RouteInterface";
 
@@ -13,18 +14,13 @@ export const Routes: Route[] = [{
     controller: AuthController,
     action: "login",
 }, {
-    method: "get",
-    route: "/users/:id",
-    controller: UserController,
-    action: "one"
-}, {
     method: "post",
-    route: "/users",
-    controller: UserController,
-    action: "save"
+    route: "/url/shorten",
+    controller: UrlController,
+    action: "shorten"
 }, {
-    method: "delete",
-    route: "/users/:id",
-    controller: UserController,
-    action: "remove"
-}];
+    method: "get",
+    route: "/:shortId",
+    controller: UrlController,
+    action: "redirectToActualUrl"
+},];
