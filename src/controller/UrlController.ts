@@ -39,14 +39,15 @@ export class UrlController {
                 const url = await this.urlRepository.findOne({ actualUrl })
 
                 if (url) {
-                    return url
+                    response.status(201).send({ message: "url shorten", data: url })
                 } else {
                     const shortId = nanoid(7)
                     const shortUrl = this.baseURL + shortId
 
                     const newUrl = this.urlRepository.create({ actualUrl, shortUrl, shortId, user: request.user })
+                    const savedUrl = await this.urlRepository.save(newUrl)
 
-                    response.status(201).send(await this.urlRepository.save(newUrl))
+                    response.status(201).send({ message: "url shorten", data: savedUrl })
                 }
             }
         } catch (err) {

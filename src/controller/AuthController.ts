@@ -21,7 +21,9 @@ export class AuthController {
 
             const user = this.userRepository.create({ username, password: hashPassword });
 
-            return this.userRepository.save(user);
+            const savedUser = await this.userRepository.save(user);
+
+            return response.status(201).send({ message: "User registered", data: savedUser })
         } catch (err) {
             throw err
         }
@@ -40,7 +42,7 @@ export class AuthController {
                 const token: AccessToken = this.generateJWT({ id: user.id, username: user.username })
 
                 if (validPassword) {
-                    response.status(200).send({ message: "User login", token })
+                    response.status(200).send({ message: "User login", data: { ...token, username: user.username } })
                 } else {
                     response.status(400).send({ message: "Either username or password is wrong" })
                 }
