@@ -1,48 +1,59 @@
 import "reflect-metadata";
-import {createConnection} from "typeorm";
+import { createConnection } from "typeorm";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Request, Response} from "express";
-import {Routes} from "./routes";
-import {User} from "./entity/User";
+import { Request, Response } from "express";
+import { Routes } from "./routes";
+import { User } from "./entity/User";
+import { request } from "http";
 
 createConnection().then(async connection => {
 
-    // create express app
-    const app = express();
-    app.use(bodyParser.json());
+  // create express app
+  const app = express();
+  app.use(express.json());
 
-    // register express routes from defined application routes
-    Routes.forEach(route => {
-        (app as any)[route.method](route.route, (req: Request, res: Response, next: Function) => {
-            const result = (new (route.controller as any))[route.action](req, res, next);
-            if (result instanceof Promise) {
-                result.then(result => result !== null && result !== undefined ? res.send(result) : undefined);
+  // register express routes from defined application routes
+  Routes.forEach(route => {
 
-            } else if (result !== null && result !== undefined) {
-                res.json(result);
-            }
-        });
+    // implemented middleware
+    const middlewareFn = route.middlewareArr ? (req: Request, res: Response, next: express.NextFunction) => {
+      route.middlewareArr.forEach(middleware => {
+        try {
+          middleware(req, res, next)
+
+        } catch (err) {
+          let error = err;
+          if (!(error instanceof Error)) {
+            error = new Error("something went wrong")
+          }
+          res.status(500).send({ message: error.message })
+        }
+      })
+
+    } : (req: Request, res: Response, next: express.NextFunction) => {
+      next();
+    }
+
+    (app as any)[route.method](route.route, middlewareFn, (req: Request, res: Response, next: Function) => {
+
+      console.log(route.route)
+
+      const result = (new (route.controller as any))[route.action](req, res, next);
+      if (result instanceof Promise) {
+        result.then(result => result !== null && result !== undefined ? res.send(result) : undefined)
+          .catch((err) => res.status(500).send({ error: "Something Went Wrong", err }));
+
+      } else if (result !== null && result !== undefined) {
+        res.json(result);
+      }
     });
+  });
 
-    // setup express app here
-    // ...
+  // start express server
+  const PORT = Number(process.env.PORT) || 3000
+  app.listen(PORT);
 
-    // start express server
-    app.listen(3000);
-
-    // insert new users for test
-    await connection.manager.save(connection.manager.create(User, {
-        firstName: "Timber",
-        lastName: "Saw",
-        age: 27
-    }));
-    await connection.manager.save(connection.manager.create(User, {
-        firstName: "Phantom",
-        lastName: "Assassin",
-        age: 24
-    }));
-
-    console.log("Express server has started on port 3000. Open http://localhost:3000/users to see results");
+  console.log(`Express server has started on port ${PORT}`);
 
 }).catch(error => console.log(error));

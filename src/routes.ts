@@ -1,10 +1,17 @@
-import {UserController} from "./controller/UserController";
+import { AuthController } from "./controller/AuthController";
+import { UserController } from "./controller/UserController";
+import { Route } from "./interfaces/RouteInterface";
 
-export const Routes = [{
-    method: "get",
-    route: "/users",
-    controller: UserController,
-    action: "all"
+export const Routes: Route[] = [{
+    method: "post",
+    route: "/register",
+    controller: AuthController,
+    action: "register"
+}, {
+    method: "post",
+    route: "/login",
+    controller: AuthController,
+    action: "login",
 }, {
     method: "get",
     route: "/users/:id",
