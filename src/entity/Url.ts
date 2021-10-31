@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { User } from "./User";
 
 @Entity()
 export class Url {
@@ -17,5 +18,8 @@ export class Url {
 
     @Column("int", { default: 0 })
     visitors: number
+
+    @ManyToOne(() => User, user => user.urls)
+    user: User
 
 }

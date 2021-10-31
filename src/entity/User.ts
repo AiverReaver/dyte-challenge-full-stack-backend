@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Url } from "./Url";
 
 @Entity()
 export class User {
@@ -11,4 +12,8 @@ export class User {
 
     @Column('varchar')
     password: string
+
+    @OneToMany(() => Url, url => url.user)
+    urls: Url[]
+
 }

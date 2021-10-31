@@ -3,6 +3,8 @@ import { Request, Response } from "express";
 import { Url } from "../entity/Url";
 import * as validUrl from 'valid-url'
 import { nanoid } from 'nanoid'
+import { AuthInfoRequest } from "../interfaces/AuthInterface";
+import { User } from "../entity/User";
 
 export class UrlController {
 
@@ -13,7 +15,18 @@ export class UrlController {
         this.baseURL = `${process.env.BASE_URL}:${process.env.PORT || 3000}/`
     }
 
-    async shorten(request: Request, response: Response): Promise<any> {
+    async all(request: AuthInfoRequest, response: Response) {
+        try {
+            const urls = await this.urlRepository.find({ user: request.user })
+
+            response.status(200).send({ data: urls, message: "urls fetched" })
+        } catch (err) {
+            throw err
+        }
+
+    }
+
+    async shorten(request: AuthInfoRequest, response: Response): Promise<any> {
         try {
             const { actualUrl } = request.body
 
@@ -31,9 +44,9 @@ export class UrlController {
                     const shortId = nanoid(7)
                     const shortUrl = this.baseURL + shortId
 
-                    const newUrl = this.urlRepository.create({ actualUrl, shortUrl, shortId })
+                    const newUrl = this.urlRepository.create({ actualUrl, shortUrl, shortId, user: request.user })
 
-                    return response.status(201).send(await this.urlRepository.save(newUrl))
+                    response.status(201).send(await this.urlRepository.save(newUrl))
                 }
             }
         } catch (err) {
@@ -59,7 +72,5 @@ export class UrlController {
             throw err
         }
     }
-
-
 
 }

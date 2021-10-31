@@ -10,5 +10,5 @@ export interface userReqBody {
 }
 
 export interface AuthInfoRequest extends Request {
-    user?: { id: Number, username: string }
+    user?: { id: number, username: string }
 }
