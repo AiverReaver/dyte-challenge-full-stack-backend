@@ -26,6 +26,12 @@ export const Routes: Route[] = [{
   action: "shorten",
   middlewareArr: [verifyToken]
 }, {
+  method: "delete",
+  route: "/url/:shortId",
+  controller: UrlController,
+  action: "deleteUrl",
+  middlewareArr: [verifyToken]
+}, {
   method: "get",
   route: "/:shortId",
   controller: UrlController,

@@ -12,7 +12,7 @@ export class UrlController {
     private baseURL;
 
     constructor() {
-        this.baseURL = `${process.env.BASE_URL}:${process.env.PORT || 3000}/`
+        this.baseURL = `${process.env.BASE_URL}/`
     }
 
     async all(request: AuthInfoRequest, response: Response) {
@@ -55,17 +55,45 @@ export class UrlController {
         }
     }
 
+    async deleteUrl(request: AuthInfoRequest, response: Response) {
+        try {
+            const { shortId } = request.params;
+
+            const url = await this.urlRepository.findOne({ shortId }, { relations: ['user'] });
+            if (url) {
+
+                if (url.user.id === request.user.id) {
+                    await this.urlRepository.delete({ shortId });
+                    response.send({ message: "deleted Successfully" })
+                } else {
+                    response.status(400).send({ message: "unauthoried" })
+                }
+            } else {
+                response.status(404).send({ message: "Url not found" })
+            }
+
+        } catch (err) {
+            response.send({ message: err.message })
+        }
+    }
+
     async redirectToActualUrl(request: Request, response: Response) {
         try {
             const { shortId } = request.params
+            const { isUnique } = request.query
 
             const url = await this.urlRepository.findOne({ shortId });
 
             if (url) {
-                url.visitors += 1
+
+                if (isUnique) {
+                    url.visitors += 1
+                }
+
+                url.views += 1
                 this.urlRepository.save(url)
 
-                return response.redirect(url.actualUrl)
+                return response.status(200).send({ data: url.actualUrl, message: "long url" })
             }
 
             return response.status(404).json({ message: "Invalid Url" })

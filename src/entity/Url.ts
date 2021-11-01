@@ -8,18 +8,21 @@ export class Url {
     id: number;
 
     @Column("varchar")
-    actualUrl: string
+    actualUrl: string;
 
     @Column()
-    shortId: string
+    shortId: string;
 
     @Column('varchar')
-    shortUrl: string
+    shortUrl: string;
 
     @Column("int", { default: 0 })
-    visitors: number
+    visitors: number;
+
+    @Column("int", { default: 0 })
+    views: number;
 
     @ManyToOne(() => User, user => user.urls)
-    user: User
+    user: User;
 
 }
