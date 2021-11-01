@@ -62,7 +62,7 @@ export class UrlController {
 
             const alreadyExist = await this.urlRepository.findOne({ shortId: newShortId });
 
-            if (alreadyExist) {
+            if (alreadyExist && newActualUrl === alreadyExist.actualUrl) {
                 return response.status(400).send({ message: "Short url With that  id already exist" })
             }
             const url = await this.urlRepository.findOne({ id: parseInt(id) }, { relations: ["user"] });
