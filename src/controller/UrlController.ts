@@ -71,6 +71,7 @@ export class UrlController {
                 if (url.user.id === request.user.id) {
                     url.shortId = newShortId;
                     url.actualUrl = newActualUrl;
+                    url.shortUrl = this.baseURL + newShortId
                     await this.urlRepository.save(url)
 
                     response.status(200).send({ message: "url updated successfully" })
