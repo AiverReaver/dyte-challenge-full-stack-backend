@@ -29,7 +29,7 @@ export class AuthController {
 
             const savedUser = await this.userRepository.save(user);
 
-            return response.status(201).send({ message: "User registered", data: savedUser })
+            return response.status(201).send({ message: "User registered", data: { id: savedUser.id, username: savedUser.username } })
         } catch (err) {
             throw err
         }

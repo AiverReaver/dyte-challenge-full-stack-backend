@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { Url } from "../entity/Url";
 import * as validUrl from 'valid-url'
 import { nanoid } from 'nanoid'
-import { AuthInfoRequest } from "../interfaces/AuthInterface";
+import { AuthInfoRequest, userAgentRequest } from "../interfaces/AuthInterface";
 import { User } from "../entity/User";
 
 export class UrlController {
@@ -36,10 +36,10 @@ export class UrlController {
             }
 
             if (isValidUrl) {
-                const url = await this.urlRepository.findOne({ actualUrl })
+                const url = await this.urlRepository.findOne({ where: { actualUrl, user: request.user } })
 
                 if (url) {
-                    response.status(201).send({ message: "url shorten", data: url })
+                    response.status(201).send({ message: "URL Already shorten by you", data: { ...url, old: true } })
                 } else {
                     const shortId = nanoid(7)
                     const shortUrl = this.baseURL + shortId
@@ -63,23 +63,20 @@ export class UrlController {
             const alreadyExist = await this.urlRepository.findOne({ shortId: newShortId });
 
             if (alreadyExist && newActualUrl === alreadyExist.actualUrl) {
-                return response.status(400).send({ message: "Short url With that  id already exist" })
+                return response.status(400).send({ message: "Short url With that id already exist" })
             }
-            const url = await this.urlRepository.findOne({ id: parseInt(id) }, { relations: ["user"] });
+            const url = await this.urlRepository.findOne({ where: { id: parseInt(id), user: request.user } },);
 
             if (url) {
-                if (url.user.id === request.user.id) {
-                    url.shortId = newShortId;
-                    url.actualUrl = newActualUrl;
-                    url.shortUrl = this.baseURL + newShortId
-                    await this.urlRepository.save(url)
+                url.shortId = newShortId;
+                url.actualUrl = newActualUrl;
+                url.shortUrl = this.baseURL + newShortId
+                await this.urlRepository.save(url)
 
-                    response.status(200).send({ message: "url updated successfully" })
-                } else {
-                    response.status(400).send({ message: "unauthoried" })
-                }
+                response.status(200).send({ message: "url updated successfully" })
+
             } else {
-                response.status(404).send({ message: "Url not found" })
+                response.status(400).send({ message: "Url not found" })
             }
 
         } catch (err) {
@@ -91,16 +88,13 @@ export class UrlController {
         try {
             const { shortId } = request.params;
 
-            const url = await this.urlRepository.findOne({ shortId }, { relations: ['user'] });
+            const url = await this.urlRepository.findOne({ where: { shortId, user: request.user } },);
             if (url) {
-                if (url.user.id === request.user.id) {
-                    await this.urlRepository.delete({ shortId });
-                    response.send({ message: "deleted Successfully" })
-                } else {
-                    response.status(400).send({ message: "unauthoried" })
-                }
+                await this.urlRepository.delete({ shortId });
+                response.send({ message: "deleted Successfully" })
+
             } else {
-                response.status(404).send({ message: "Url not found" })
+                response.status(400).send({ message: "Url not found" })
             }
 
         } catch (err) {
