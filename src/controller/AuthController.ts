@@ -14,6 +14,12 @@ export class AuthController {
 
             const { username, password } = request.body as userReqBody
 
+            const isUserExist = await this.userRepository.findOne({ username })
+
+            if (isUserExist) {
+                return response.status(400).send({ message: "User already exist" })
+            }
+
             this.verifyRequestBody(request, response);
             const salt = await bcrypt.genSalt(10);
 
