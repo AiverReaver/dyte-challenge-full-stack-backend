@@ -55,13 +55,43 @@ export class UrlController {
         }
     }
 
+    async update(request: AuthInfoRequest, response: Response) {
+        try {
+            const { id } = request.params;
+            const { newShortId, newActualUrl } = request.body
+
+            const alreadyExist = await this.urlRepository.findOne({ shortId: newShortId });
+
+            if (alreadyExist) {
+                return response.status(400).send({ message: "Short url With that  id already exist" })
+            }
+            const url = await this.urlRepository.findOne({ id: parseInt(id) }, { relations: ["user"] });
+
+            if (url) {
+                if (url.user.id === request.user.id) {
+                    url.shortId = newShortId;
+                    url.actualUrl = newActualUrl;
+                    await this.urlRepository.save(url)
+
+                    response.status(200).send({ message: "url updated successfully" })
+                } else {
+                    response.status(400).send({ message: "unauthoried" })
+                }
+            } else {
+                response.status(404).send({ message: "Url not found" })
+            }
+
+        } catch (err) {
+            throw err
+        }
+    }
+
     async deleteUrl(request: AuthInfoRequest, response: Response) {
         try {
             const { shortId } = request.params;
 
             const url = await this.urlRepository.findOne({ shortId }, { relations: ['user'] });
             if (url) {
-
                 if (url.user.id === request.user.id) {
                     await this.urlRepository.delete({ shortId });
                     response.send({ message: "deleted Successfully" })
@@ -91,7 +121,7 @@ export class UrlController {
                 }
 
                 url.views += 1
-                this.urlRepository.save(url)
+                await this.urlRepository.save(url)
 
                 return response.status(200).send({ data: url.actualUrl, message: "long url" })
             }

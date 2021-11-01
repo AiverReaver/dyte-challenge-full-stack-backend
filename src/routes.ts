@@ -32,6 +32,12 @@ export const Routes: Route[] = [{
   action: "deleteUrl",
   middlewareArr: [verifyToken]
 }, {
+  method: "patch",
+  route: "/url/:id",
+  controller: UrlController,
+  action: "update",
+  middlewareArr: [verifyToken]
+}, {
   method: "get",
   route: "/:shortId",
   controller: UrlController,
