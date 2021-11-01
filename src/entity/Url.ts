@@ -25,4 +25,10 @@ export class Url {
     @ManyToOne(() => User, user => user.urls)
     user: User;
 
+    @Column()
+    lastDevice: string;
+
+    @Column()
+    lastBrowser: string;
+
 }

@@ -2,8 +2,10 @@ import "reflect-metadata";
 import { createConnection } from "typeorm";
 import * as express from "express";
 import { Request, Response } from "express";
-import { Routes } from "./routes";
 import * as cors from 'cors'
+import * as useragent from 'express-useragent'
+
+import { Routes } from "./routes";
 
 
 createConnection().then(async connection => {
@@ -12,6 +14,7 @@ createConnection().then(async connection => {
   const app = express();
   app.use(cors())
   app.use(express.json());
+  app.use(useragent.express())
 
   // register express routes from defined application routes
   Routes.forEach(route => {

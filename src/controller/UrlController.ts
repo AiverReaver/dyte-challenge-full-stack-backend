@@ -108,7 +108,7 @@ export class UrlController {
         }
     }
 
-    async redirectToActualUrl(request: Request, response: Response) {
+    async redirectToActualUrl(request: userAgentRequest, response: Response) {
         try {
             const { shortId } = request.params
             const { isUnique } = request.query
@@ -120,6 +120,9 @@ export class UrlController {
                 if (!!parseInt(isUnique as string)) {
                     url.visitors += 1
                 }
+
+                url.lastDevice = request.useragent.os
+                url.lastBrowser = request.useragent.browser
 
                 url.views += 1
                 await this.urlRepository.save(url)

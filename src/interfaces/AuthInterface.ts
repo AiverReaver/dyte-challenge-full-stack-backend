@@ -12,3 +12,7 @@ export interface userReqBody {
 export interface AuthInfoRequest extends Request {
     user?: { id: number, username: string }
 }
+
+export interface userAgentRequest extends Request {
+    useragent?: any
+}
