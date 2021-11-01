@@ -86,7 +86,7 @@ export class UrlController {
 
             if (url) {
 
-                if (isUnique) {
+                if (!!parseInt(isUnique as string)) {
                     url.visitors += 1
                 }
 
