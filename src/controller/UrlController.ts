@@ -45,7 +45,7 @@ export class UrlController {
                             actualUrl,
                             shortId,
                             user: request.user,
-                            expiryDate
+                            expiryDate,
                         });
                     const savedUrl = await this.urlRepository.save(newUrl);
 
@@ -65,20 +65,22 @@ export class UrlController {
             const alreadyExist = await this.urlRepository.findOne({ shortId: newShortId });
 
             if (alreadyExist && newActualUrl === alreadyExist.actualUrl) {
-                return response.status(400).send({ message: "Short url With that id already exist" })
-            }
-            const url = await this.urlRepository.findOne({ where: { id: parseInt(id), user: request.user } },);
-
-            if (url) {
-                url.shortId = newShortId;
-                url.actualUrl = newActualUrl;
-
-                await this.urlRepository.save(url)
-
-                response.status(200).send({ message: "url updated successfully" })
-
+                response.status(400).send({ message: "Short url With that id already exist" })
             } else {
-                response.status(400).send({ message: "Url not found" })
+
+                const url = await this.urlRepository.findOne({ where: { id: parseInt(id), user: request.user } },);
+
+                if (url) {
+                    url.shortId = newShortId;
+                    url.actualUrl = newActualUrl;
+
+                    await this.urlRepository.save(url)
+
+                    response.status(200).send({ message: "url updated successfully" })
+
+                } else {
+                    response.status(400).send({ message: "Url not found" })
+                }
             }
 
         } catch (err) {

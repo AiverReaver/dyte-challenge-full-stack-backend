@@ -22,10 +22,10 @@ export class Url {
     @ManyToOne(() => User, user => user.urls)
     user: User;
 
-    @Column()
+    @Column({ default: "unknown" })
     lastDevice: string;
 
-    @Column()
+    @Column({ default: "unknown" })
     lastBrowser: string;
 
     @Column({ type: "date" })
