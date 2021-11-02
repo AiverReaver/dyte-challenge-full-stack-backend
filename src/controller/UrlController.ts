@@ -9,11 +9,6 @@ import { addDays, format, compareAsc, parseISO } from 'date-fns'
 export class UrlController {
 
     private urlRepository = getRepository(Url);
-    private baseURL;
-
-    constructor() {
-        this.baseURL = `${process.env.BASE_URL}/`
-    }
 
     async all(request: AuthInfoRequest, response: Response) {
         try {
@@ -42,14 +37,12 @@ export class UrlController {
                     response.status(201).send({ message: "URL Already shorten by you", data: { ...url, old: true } })
                 } else {
                     const shortId = nanoid(7)
-                    const shortUrl = this.baseURL + shortId
 
                     const expiryDate = format(addDays(new Date(), 2), "yyyy-L-d")
 
                     const newUrl = this.urlRepository
                         .create({
                             actualUrl,
-                            shortUrl,
                             shortId,
                             user: request.user,
                             expiryDate
@@ -81,7 +74,7 @@ export class UrlController {
             if (url) {
                 url.shortId = newShortId;
                 url.actualUrl = newActualUrl;
-                url.shortUrl = this.baseURL + newShortId
+
                 await this.urlRepository.save(url)
 
                 response.status(200).send({ message: "url updated successfully" })

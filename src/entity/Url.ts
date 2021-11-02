@@ -13,9 +13,6 @@ export class Url {
     @Column()
     shortId: string;
 
-    @Column('varchar')
-    shortUrl: string;
-
     @Column("int", { default: 0 })
     visitors: number;
 
