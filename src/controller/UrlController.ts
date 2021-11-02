@@ -49,8 +49,6 @@ export class UrlController {
                         });
                     const savedUrl = await this.urlRepository.save(newUrl);
 
-                    delete savedUrl.user;
-
                     response.status(201).send({ message: "url shorten", data: savedUrl })
                 }
             }
