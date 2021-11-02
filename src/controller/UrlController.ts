@@ -1,10 +1,10 @@
 import { getRepository } from "typeorm";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { Url } from "../entity/Url";
 import * as validUrl from 'valid-url'
 import { nanoid } from 'nanoid'
 import { AuthInfoRequest, userAgentRequest } from "../interfaces/AuthInterface";
-import { User } from "../entity/User";
+import { addDays, format, compareAsc, parseISO } from 'date-fns'
 
 export class UrlController {
 
@@ -44,8 +44,19 @@ export class UrlController {
                     const shortId = nanoid(7)
                     const shortUrl = this.baseURL + shortId
 
-                    const newUrl = this.urlRepository.create({ actualUrl, shortUrl, shortId, user: request.user })
-                    const savedUrl = await this.urlRepository.save(newUrl)
+                    const expiryDate = format(addDays(new Date(), 2), "yyyy-L-d")
+
+                    const newUrl = this.urlRepository
+                        .create({
+                            actualUrl,
+                            shortUrl,
+                            shortId,
+                            user: request.user,
+                            expiryDate
+                        });
+                    const savedUrl = await this.urlRepository.save(newUrl);
+
+                    delete savedUrl.user;
 
                     response.status(201).send({ message: "url shorten", data: savedUrl })
                 }
@@ -109,8 +120,11 @@ export class UrlController {
 
             const url = await this.urlRepository.findOne({ shortId });
 
-            if (url) {
+            if (compareAsc(parseISO(url.expiryDate), new Date()) === -1) {
+                response.status(400).send({ message: "Url is expired" })
+            }
 
+            if (url) {
                 if (!!parseInt(isUnique as string)) {
                     url.visitors += 1
                 }
@@ -121,10 +135,10 @@ export class UrlController {
                 url.views += 1
                 await this.urlRepository.save(url)
 
-                return response.status(200).send({ data: url.actualUrl, message: "long url" })
+                response.status(200).send({ data: url.actualUrl, message: "long url" })
+            } else {
+                response.status(400).json({ message: "Invalid Url" })
             }
-
-            return response.status(404).json({ message: "Invalid Url" })
         } catch (err) {
             throw err
         }

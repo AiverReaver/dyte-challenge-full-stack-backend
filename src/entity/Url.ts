@@ -31,4 +31,7 @@ export class Url {
     @Column()
     lastBrowser: string;
 
+    @Column({ type: "date" })
+    expiryDate: string
+
 }
