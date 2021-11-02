@@ -17,7 +17,7 @@ export class AuthController {
             const isUserExist = await this.userRepository.findOne({ username })
 
             if (isUserExist) {
-                return response.status(400).send({ message: "User already exist" })
+                response.status(400).send({ message: "User already exist" })
             }
 
             this.verifyRequestBody(request, response);
@@ -29,7 +29,7 @@ export class AuthController {
 
             const savedUser = await this.userRepository.save(user);
 
-            return response.status(201).send({ message: "User registered", data: { id: savedUser.id, username: savedUser.username } })
+            response.status(201).send({ message: "User registered", data: { id: savedUser.id, username: savedUser.username } })
         } catch (err) {
             throw err
         }
@@ -52,6 +52,9 @@ export class AuthController {
                 } else {
                     response.status(400).send({ message: "Either username or password is wrong" })
                 }
+
+            } else {
+                response.status(400).send({ message: "User does not exist" })
             }
         } catch (err) {
             throw err
@@ -59,10 +62,10 @@ export class AuthController {
 
     }
 
-    private verifyRequestBody(req, res) {
+    private verifyRequestBody(req: Request, res: Response) {
         const { username, password } = req.body
         if (!username || !password) {
-            res.send(400, { error: "username and password is required" })
+            res.status(400).send({ error: "username and password is required" })
         }
     }
 
